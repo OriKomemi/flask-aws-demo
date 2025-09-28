@@ -28,7 +28,7 @@ class User(db.Model):
 
 @app.route("/")
 def index():
-    return "Hello from Flask + SQLAlchemy + Postgres!"
+    return "Hello from Flask + SQLAlchemy + Postgres! Version 2"
 
 @app.route("/users", methods=["GET", "POST"])
 def users():

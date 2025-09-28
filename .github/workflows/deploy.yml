@@ -16,8 +16,12 @@ jobs:
           aws-region: us-east-1
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
-      - name: Build, Tag, Push Docker Image
+      - name: Build, tag, and push image to ECR
+        id: build-image
+        env:
+            ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+            ECR_REPOSITORY: flask-aws-demo
+            IMAGE_TAG: latest
         run: |
-          IMAGE_URI="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/flask-aws-demo:latest"
-          docker build -t $IMAGE_URI .
-          docker push $IMAGE_URI
+            docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+            docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

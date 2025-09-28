@@ -173,6 +173,13 @@ resource "aws_ecs_service" "app_service" {
     security_groups = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
+
+  lifecycle {
+    ignore_changes = [
+      # GitHub Actions handles deployments
+      task_definition
+    ]
+  }
 }
 
 output "app_service" {

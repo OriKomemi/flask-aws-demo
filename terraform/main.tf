@@ -10,19 +10,52 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "public_a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = "us-east-1a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-subnet-a"
+  }
 }
 
 resource "aws_subnet" "public_b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = "us-east-1b"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = "us-east-1b"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "public-subnet-b"
+  }
 }
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public_a" {
+  subnet_id      = aws_subnet.public_a.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_b" {
+  subnet_id      = aws_subnet.public_b.id
+  route_table_id = aws_route_table.public.id
 }
 
 # Security groups
@@ -69,6 +102,7 @@ resource "aws_db_instance" "postgres" {
   engine               = "postgres"
   engine_version       = "17.6"
   instance_class       = "db.t3.micro"
+  db_name              = "appdb"
   username             = "dbadmin"
   password             = "pass12345"
   skip_final_snapshot  = true
@@ -121,7 +155,7 @@ resource "aws_ecs_task_definition" "app" {
     environment = [
       { name = "DB_HOST",     value = aws_db_instance.postgres.address },
       { name = "DB_NAME",     value = "appdb" },
-      { name = "DB_USER",     value = "user" },
+      { name = "DB_USER",     value = "dbadmin" },
       { name = "DB_PASSWORD", value = "pass12345" }
     ]
   }])

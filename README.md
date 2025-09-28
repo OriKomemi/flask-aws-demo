@@ -68,7 +68,6 @@ On push to `main`:
 Set in GitHub **Secrets**:
 - `AWS_ACCESS_KEY_ID`
 - `AWS_SECRET_ACCESS_KEY`
-- `AWS_ACCOUNT_ID`
 
 ---
 

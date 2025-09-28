@@ -4,6 +4,8 @@ on:
     branches: [ main ]
     paths:
       - 'src/**'
+  #manual triggers
+  workflow_dispatch:
 
 jobs:
   deploy:

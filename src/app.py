@@ -34,7 +34,7 @@ def index():
 def users():
     if request.method == "POST":
         data = request.get_json()
-        new_user = User(name=data["name"]) # type: ignore
+        new_user = User(name=data["name"])  # type: ignore
         db.session.add(new_user)
         db.session.commit()
         return jsonify(new_user.to_dict()), 201

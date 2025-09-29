@@ -31,7 +31,7 @@ jobs:
         id: build-image
         env:
             ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            ECR_REPOSITORY: flask-aws-demo
+            ECR_REPOSITORY: flask-aws-demo-dev
             IMAGE_TAG: ${{ steps.get-commit-hash.outputs.commit-hash }}-${{ steps.get-timestamp.outputs.timestamp }}
         run: |
             docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
@@ -39,24 +39,24 @@ jobs:
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Download task definition
-        run: |
-            aws ecs describe-task-definition --task-definition flask-app --query taskDefinition > task-definition.json
-      - name: Update task definition image
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: task-definition.json
-          container-name: flask-app
-          image: ${{ steps.login-ecr.outputs.registry }}/flask-aws-demo:latest
+      # - name: Download task definition
+      #   run: |
+      #       aws ecs describe-task-definition --task-definition flask-app --query taskDefinition > task-definition.json
+      # - name: Update task definition image
+      #   id: task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: task-definition.json
+      #     container-name: flask-app
+      #     image: ${{ steps.login-ecr.outputs.registry }}/flask-aws-demo:latest
 
-      - name: Deploy to ECS
-        env:
-          ECS_CLUSTER: flask-cluster
-          ECS_SERVICE: flask-service
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+      # - name: Deploy to ECS
+      #   env:
+      #     ECS_CLUSTER: flask-cluster
+      #     ECS_SERVICE: flask-service
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+      #   with:
+      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+      #     service: ${{ env.ECS_SERVICE }}
+      #     cluster: ${{ env.ECS_CLUSTER }}
+      #     wait-for-service-stability: true
